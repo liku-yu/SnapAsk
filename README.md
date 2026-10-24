@@ -5,6 +5,7 @@
   <p>Chrome / Edge 109+ · Manifest V3 · 无中转服务器</p>
   <p>
     <img alt="check" src="https://github.com/liku-yu/SnapAsk/actions/workflows/check.yml/badge.svg" />
+    <img alt="release" src="https://img.shields.io/github/v/release/liku-yu/SnapAsk" />
     <img alt="license" src="https://img.shields.io/github/license/liku-yu/SnapAsk" />
   </p>
 </div>
@@ -28,9 +29,21 @@
 
 ## 安装
 
-1. 打开 `chrome://extensions/` 或 `edge://extensions/`，开启开发者模式。
-2. 点击 **加载已解压的扩展程序**，选择本目录。
-3. 打开设置页，配置 API 或网页账户。
+### 方式一：下载 Release（推荐）
+
+1. 下载 [snapask-extension-v1.0.0.zip](https://github.com/liku-yu/SnapAsk/releases/download/v1.0.0/snapask-extension-v1.0.0.zip)。
+2. 解压到一个**固定目录**，例如 `~/Applications/SnapAsk` 或 `C:\SnapAsk`。
+3. 打开 `chrome://extensions/` 或 `edge://extensions/`，开启开发者模式。
+4. 点击 **加载已解压的扩展程序**，选择**直接包含 `manifest.json` 的文件夹**。
+
+> 不能直接选择 `.zip`；解压后的文件夹也不要删除或移动，否则扩展会失效。
+
+### 方式二：从源码加载
+
+1. 克隆本仓库，或下载源码。
+2. 打开 `chrome://extensions/` 或 `edge://extensions/`，开启开发者模式。
+3. 点击 **加载已解压的扩展程序**，选择仓库根目录。
+4. 打开设置页，配置 API 或网页账户。
 
 首次安装会自动打开设置页。
 
