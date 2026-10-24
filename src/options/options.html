@@ -99,14 +99,16 @@
               <span>快速预设</span>
               <select id="preset">
                 <option value="custom">自定义</option>
-                <option value="openai">OpenAI 官方</option>
-                <option value="openrouter">OpenRouter</option>
-                <option value="gemini">Google Gemini（OpenAI 兼容）</option>
-                <option value="siliconflow">硅基流动 SiliconFlow</option>
-                <option value="zhipu">智谱 GLM</option>
-                <option value="moonshot">Moonshot 月之暗面</option>
-                <option value="ollama">本地 Ollama</option>
-                <option value="anthropic">Anthropic Claude</option>
+                <optgroup label="主流 API">
+                  <option value="openai">OpenAI (GPT)</option>
+                  <option value="deepseek">DeepSeek API</option>
+                  <option value="zhipu">智谱 GLM</option>
+                  <option value="anthropic">Anthropic Claude</option>
+                  <option value="gemini">Google Gemini</option>
+                </optgroup>
+                <optgroup label="本地">
+                  <option value="ollama">本地 Ollama</option>
+                </optgroup>
                 <optgroup label="网页问答（本地适配器）">
                   <option value="deepseekWeb">DeepSeek 网页版（ds-free-api）</option>
                   <option value="chatgptWeb">ChatGPT 网页版（chat2api）</option>
@@ -285,7 +287,7 @@
       </main>
 
       <footer class="foot">
-        SnapAsk v1.0.0 · 支持 OpenAI 兼容接口 / Anthropic / Gemini / OpenRouter / 本地模型
+        SnapAsk v1.0.1 · GPT / DeepSeek / GLM / Claude / Gemini / Ollama / 网页版
       </footer>
     </div>
 

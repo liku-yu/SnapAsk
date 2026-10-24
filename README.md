@@ -17,7 +17,7 @@
 - **自动检测截图**：剪贴板出现新图片时自动弹出面板并提问。
 - **三种截图入口**：系统截图进剪贴板、`Alt+Shift+S` 截当前页、`Alt+Shift+X` 框选。
 - **流式回答**：Markdown、追问、复制、停止、重试、最小化。
-- **多种后端**：OpenAI 兼容、Anthropic、本地 Ollama、DeepSeek / ChatGPT 网页版。
+- **多种后端**：GPT / DeepSeek / GLM / Claude / Gemini / 本地 Ollama，以及 DeepSeek / ChatGPT 网页版。
 - **网页账户可视化登录**：ChatGPT 自动抓 Token；DeepSeek 自动抓 device_id。
 - **隐私友好**：截图不落盘、Key 不下发内容脚本、面板使用 closed Shadow DOM、错误自动脱敏。
 
@@ -31,7 +31,7 @@
 
 ### 方式一：下载 Release（推荐）
 
-1. 下载 [snapask-extension-v1.0.0.zip](https://github.com/liku-yu/SnapAsk/releases/download/v1.0.0/snapask-extension-v1.0.0.zip)。
+1. 下载 [snapask-extension-v1.0.1.zip](https://github.com/liku-yu/SnapAsk/releases/download/v1.0.1/snapask-extension-v1.0.1.zip)。
 2. 解压到一个**固定目录**，例如 `~/Applications/SnapAsk` 或 `C:\SnapAsk`。
 3. 打开 `chrome://extensions/` 或 `edge://extensions/`，开启开发者模式。
 4. 点击 **加载已解压的扩展程序**，选择**直接包含 `manifest.json` 的文件夹**。
@@ -77,16 +77,14 @@
 
 | 服务 | 接口类型 | Base URL | 模型示例 |
 | --- | --- | --- | --- |
-| OpenAI | OpenAI 兼容 | `https://api.openai.com/v1` | `gpt-4o-mini` |
-| OpenRouter | OpenAI 兼容 | `https://openrouter.ai/api/v1` | `openai/gpt-4o-mini` |
-| Gemini | OpenAI 兼容 | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.0-flash` |
-| 硅基流动 | OpenAI 兼容 | `https://api.siliconflow.cn/v1` | `Qwen/Qwen2.5-VL-72B-Instruct` |
-| 智谱 | OpenAI 兼容 | `https://open.bigmodel.cn/api/paas/v4` | `glm-4.5v` |
-| Moonshot | OpenAI 兼容 | `https://api.moonshot.cn/v1` | `moonshot-v1-8k-vision-preview` |
+| OpenAI (GPT) | OpenAI 兼容 | `https://api.openai.com/v1` | `gpt-4o-mini` |
+| DeepSeek | OpenAI 兼容 | `https://api.deepseek.com` | `deepseek-flash` |
+| 智谱 GLM | OpenAI 兼容 | `https://open.bigmodel.cn/api/paas/v4` | `glm-4.5v` |
+| Anthropic Claude | Anthropic | `https://api.anthropic.com/v1` | `claude-3-5-sonnet-latest` |
+| Google Gemini | OpenAI 兼容 | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.0-flash` |
 | 本地 Ollama | OpenAI 兼容 | `http://localhost:11434/v1` | `qwen2.5vl:7b` |
-| Anthropic | Anthropic | `https://api.anthropic.com/v1` | `claude-3-5-sonnet-latest` |
 
-Base URL 填到版本段为止，插件会自动补 `/chat/completions` 或 `/messages`。模型必须支持图片输入。本地 `localhost` 服务可以留空 API Key。
+Base URL 填服务商的 OpenAI 兼容地址，插件会自动补 `/chat/completions` 或 `/messages`。模型必须支持图片输入；DeepSeek 截图请用 `deepseek-flash`，`deepseek-v4-pro` 是纯文本。本地 `localhost` 服务可以留空 API Key。
 
 ## 工作原理
 

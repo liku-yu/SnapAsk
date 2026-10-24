@@ -30,30 +30,20 @@
       baseUrl: 'https://api.openai.com/v1',
       model: 'gpt-4o-mini'
     },
-    openrouter: {
+    deepseek: {
       provider: 'openai',
-      baseUrl: 'https://openrouter.ai/api/v1',
-      model: 'openai/gpt-4o-mini'
+      baseUrl: 'https://api.deepseek.com',
+      model: 'deepseek-flash'
     },
     gemini: {
       provider: 'openai',
       baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
       model: 'gemini-2.0-flash'
     },
-    siliconflow: {
-      provider: 'openai',
-      baseUrl: 'https://api.siliconflow.cn/v1',
-      model: 'Qwen/Qwen2.5-VL-72B-Instruct'
-    },
     zhipu: {
       provider: 'openai',
       baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
       model: 'glm-4.5v'
-    },
-    moonshot: {
-      provider: 'openai',
-      baseUrl: 'https://api.moonshot.cn/v1',
-      model: 'moonshot-v1-8k-vision-preview'
     },
     ollama: {
       provider: 'openai',
@@ -215,7 +205,7 @@
     const isAnthropic = $('provider').value === 'anthropic';
     baseUrlHelp.textContent = isAnthropic
       ? '填写到 /v1 为止；插件会自动补 /messages。需要允许浏览器直连的 Anthropic API。'
-      : '填写到版本号为止，例如 /v1；插件会自动补 /chat/completions。';
+      : '填写服务商的 OpenAI 兼容 Base URL（如 /v1 或 https://api.deepseek.com）；插件会自动补 /chat/completions。';
     apiKeyHelp.textContent = '保存在本机浏览器中，只会发送到你填写的 Base URL。';
   }
 

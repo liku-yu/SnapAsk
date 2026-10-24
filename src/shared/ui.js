@@ -779,7 +779,7 @@
         h('div', { class: 'sa-empty-icon', html: ICONS.key }),
         h('b', { text: '还没有配置 AI 接口' }),
         h('p', {
-          text: '填写 API Key 后，截图会自动发给模型解答。支持 OpenAI 兼容接口、OpenRouter、Gemini、Claude 等。'
+          text: '填写 API Key 后，截图会自动发给模型解答。支持 GPT、DeepSeek、GLM、Claude、Gemini、Ollama 等。'
         }),
         h('button', {
           class: 'sa-btn-primary',
