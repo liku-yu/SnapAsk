@@ -1,0 +1,39 @@
+{
+  "name": "snapask",
+  "version": "1.0.0",
+  "private": true,
+  "description": "截图即问：浏览器截图自动弹出 AI 解答。Chrome/Edge MV3，支持 OpenAI 兼容 / Anthropic / 本地 Ollama / DeepSeek 与 ChatGPT 网页版。",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liku-yu/SnapAsk.git"
+  },
+  "homepage": "https://github.com/liku-yu/SnapAsk#readme",
+  "bugs": {
+    "url": "https://github.com/liku-yu/SnapAsk/issues"
+  },
+  "license": "MIT",
+  "keywords": [
+    "chrome-extension",
+    "edge-extension",
+    "manifest-v3",
+    "screenshot",
+    "ai",
+    "vision",
+    "openai",
+    "anthropic",
+    "deepseek",
+    "chatgpt",
+    "ollama",
+    "browser-extension",
+    "privacy"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "./build.sh",
+    "check": "node --check background.js && node --check offscreen.js && node --check content.js && node --check ui.js && node --check web-login.js && node --check popup.js && node --check options.js && node --check viewer.js",
+    "icons": "python3 tools/make-icons.py",
+    "mock": "node test/mock-api.js"
+  }
+}

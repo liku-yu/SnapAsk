@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SnapAsk 截图问答</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <span class="logo">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path
+              d="M12 2c.4 4.6 2.4 6.6 7 7-4.6.4-6.6 2.4-7 7-.4-4.6-2.4-6.6-7-7 4.6-.4 6.6-2.4 7-7Z"
+            />
+            <path
+              d="M19 15c.2 2.2 1.1 3.1 3.3 3.3-2.2.2-3.1 1.1-3.3 3.3-.2-2.2-1.1-3.1-3.3-3.3 2.2-.2 3.1-1.1 3.3-3.3Z"
+              opacity=".65"
+            />
+          </svg>
+        </span>
+        <div class="brand-text">
+          <div class="title">SnapAsk 截图问答</div>
+          <div class="sub">截图即问，AI 自动解答</div>
+        </div>
+      </div>
+      <label class="switch" title="开启 / 关闭插件">
+        <input id="enabled" type="checkbox" />
+        <span class="track"><span class="thumb"></span></span>
+      </label>
+    </header>
+
+    <section class="status">
+      <div class="row">
+        <span class="label">
+          <span class="dot" id="watchDot"></span>
+          自动检测截图
+        </span>
+        <span class="pill" id="watchStatus">读取中…</span>
+      </div>
+      <div class="row">
+        <span class="label">
+          <span class="dot" id="apiDot"></span>
+          AI 接口
+        </span>
+        <span class="pill" id="apiStatus">读取中…</span>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button id="capture" class="btn primary">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z" />
+          <circle cx="12" cy="13" r="3.5" />
+        </svg>
+        截取当前页面
+      </button>
+      <button id="region" class="btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" />
+        </svg>
+        框选区域
+      </button>
+    </div>
+
+    <button id="options" class="options-btn">打开设置与 API 配置</button>
+
+    <div class="tip">
+      <b>截图后自动弹出：</b>
+      <div class="tip-line">
+        Windows <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>
+        <span class="sep">·</span>
+        macOS <kbd>⌘</kbd>+<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd>
+      </div>
+      <div class="tip-line">
+        浏览器内快捷键 <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>
+        <a href="#" id="shortcuts">修改</a>
+      </div>
+    </div>
+
+    <footer>截图只会发送到你配置的 API，不会经过 SnapAsk 服务器。</footer>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

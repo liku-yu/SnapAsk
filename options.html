@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SnapAsk 设置</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div class="hero-left">
+          <span class="logo">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+              <path d="M12 2c.4 4.6 2.4 6.6 7 7-4.6.4-6.6 2.4-7 7-.4-4.6-2.4-6.6-7-7 4.6-.4 6.6-2.4 7-7Z" />
+              <path d="M19 15c.2 2.2 1.1 3.1 3.3 3.3-2.2.2-3.1 1.1-3.3 3.3-.2-2.2-1.1-3.1-3.3-3.3 2.2-.2 3.1-1.1 3.3-3.3Z" opacity=".65" />
+            </svg>
+          </span>
+          <div>
+            <h1>SnapAsk 设置</h1>
+            <p class="sub">截图后自动弹出 AI 解答 · 数据只发送到你自己的 API</p>
+          </div>
+        </div>
+        <div class="save-state" id="saveState">已加载</div>
+      </header>
+
+      <main class="grid">
+        <section class="card">
+          <div class="card-head">
+            <h2>运行方式</h2>
+            <span class="badge">基础</span>
+          </div>
+
+          <label class="switch-row">
+            <span>
+              <b>启用 SnapAsk</b>
+              <small>关闭后不会检测截图，也不会弹出面板</small>
+            </span>
+            <input id="enabled" type="checkbox" class="switch" />
+          </label>
+
+          <label class="switch-row">
+            <span>
+              <b>自动检测截图</b>
+              <small>监听系统剪贴板，截图后自动弹出解答</small>
+            </span>
+            <input id="autoDetect" type="checkbox" class="switch" />
+          </label>
+
+          <div class="field-row">
+            <label class="field">
+              <span>检测间隔（毫秒）</span>
+              <input id="watchInterval" type="number" min="400" max="5000" step="100" />
+            </label>
+            <label class="field">
+              <span>忽略小于（像素）</span>
+              <input id="minImageSize" type="number" min="16" max="512" step="8" />
+            </label>
+          </div>
+
+          <label class="switch-row">
+            <span>
+              <b>截图后自动提问</b>
+              <small>关闭后只弹出面板，由你输入问题</small>
+            </span>
+            <input id="autoAsk" type="checkbox" class="switch" />
+          </label>
+
+          <label class="switch-row">
+            <span>
+              <b>回答后自动收起</b>
+              <small>回答完成后收起为顶部小条，方便继续截图</small>
+            </span>
+            <input id="autoCollapse" type="checkbox" class="switch" />
+          </label>
+
+          <label class="field">
+            <span>默认问题</span>
+            <textarea id="defaultQuestion" rows="3"></textarea>
+            <small class="help">自动提问时发送给模型的内容</small>
+          </label>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>API 配置</h2>
+            <span class="badge" id="apiBadge">未配置</span>
+          </div>
+
+          <div class="field-row">
+            <label class="field">
+              <span>接口类型</span>
+              <select id="provider">
+                <option value="openai">OpenAI 兼容（推荐）</option>
+                <option value="anthropic">Anthropic Messages</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>快速预设</span>
+              <select id="preset">
+                <option value="custom">自定义</option>
+                <option value="openai">OpenAI 官方</option>
+                <option value="openrouter">OpenRouter</option>
+                <option value="gemini">Google Gemini（OpenAI 兼容）</option>
+                <option value="siliconflow">硅基流动 SiliconFlow</option>
+                <option value="zhipu">智谱 GLM</option>
+                <option value="moonshot">Moonshot 月之暗面</option>
+                <option value="ollama">本地 Ollama</option>
+                <option value="anthropic">Anthropic Claude</option>
+                <optgroup label="网页问答（本地适配器）">
+                  <option value="deepseekWeb">DeepSeek 网页版（ds-free-api）</option>
+                  <option value="chatgptWeb">ChatGPT 网页版（chat2api）</option>
+                </optgroup>
+              </select>
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Base URL</span>
+            <input id="baseUrl" type="text" spellcheck="false" placeholder="https://api.openai.com/v1" />
+            <small class="help" id="baseUrlHelp">填写到版本号为止，例如 /v1；插件会自动补 /chat/completions</small>
+          </label>
+
+          <label class="field">
+            <span>API Key</span>
+            <div class="key-row">
+              <input id="apiKey" type="password" spellcheck="false" autocomplete="off" placeholder="sk-..." />
+              <button type="button" class="ghost" id="toggleKey">显示</button>
+            </div>
+            <small class="help" id="apiKeyHelp">保存在本机浏览器中，只会发送到你填写的 Base URL</small>
+          </label>
+
+          <label class="field">
+            <span>模型（model）</span>
+            <input id="model" type="text" spellcheck="false" placeholder="gpt-4o-mini" />
+            <small class="help">必须选择支持图片输入（vision）的模型</small>
+          </label>
+
+          <div class="field-row">
+            <label class="field">
+              <span>温度（0–2）</span>
+              <input id="temperature" type="number" min="0" max="2" step="0.1" />
+            </label>
+            <label class="field">
+              <span>最大输出 tokens</span>
+              <input id="maxTokens" type="number" min="64" max="32000" step="64" />
+            </label>
+          </div>
+
+          <label class="field">
+            <span>系统提示词</span>
+            <textarea id="systemPrompt" rows="4"></textarea>
+          </label>
+
+          <div class="test-row">
+            <button id="testBtn" class="primary" type="button">测试连接</button>
+            <div class="test-result" id="testResult"></div>
+          </div>
+        </section>
+
+        <section class="card card-wide" id="webCard">
+          <div class="card-head">
+            <h2>网页问答账户</h2>
+            <span class="badge" id="webModeBadge">未选择</span>
+          </div>
+          <p class="note">
+            登录 DeepSeek / ChatGPT 网页版后，SnapAsk 通过本机适配器使用你的登录态回答截图。
+            ChatGPT 会自动抓取 Token；DeepSeek 会自动抓取 device_id，密码只在适配器管理页输入。
+          </p>
+          <div class="web-grid">
+            <div class="web-provider" id="deepseekPanel">
+              <div class="web-provider-head">
+                <b>DeepSeek 网页版</b>
+                <span class="web-state" id="deepseekState">未登录</span>
+              </div>
+              <p class="web-meta">ds-free-api · 127.0.0.1:22217</p>
+              <div class="web-actions">
+                <button id="deepseekLogin" class="primary" type="button">登录 DeepSeek</button>
+                <button id="deepseekUse" class="ghost" type="button">使用此适配器</button>
+                <button id="deepseekAdmin" class="ghost" type="button">适配器管理页</button>
+              </div>
+              <p class="help">适配器 Key 在下方「API 配置 → API Key」中填写；DeepSeek 密码只在管理页输入。</p>
+              <div class="web-captured" id="deepseekCaptured" hidden>
+                <div class="web-captured-row"><span>邮箱</span><code id="deepseekEmail">—</code></div>
+                <div class="web-captured-row"><span>device_id</span><code id="deepseekDeviceId">—</code></div>
+                <button id="deepseekCopy" class="ghost" type="button">复制 device_id</button>
+                <p class="help">在管理页添加账户时粘贴 device_id。DeepSeek 密码只填在管理页，插件不保存。</p>
+              </div>
+              <div class="web-actions">
+                <button id="deepseekCheck" class="ghost" type="button">检测适配器</button>
+                <span class="web-check" id="deepseekCheckResult"></span>
+              </div>
+            </div>
+
+            <div class="web-provider" id="chatgptPanel">
+              <div class="web-provider-head">
+                <b>ChatGPT 网页版</b>
+                <span class="web-state" id="chatgptState">未登录</span>
+              </div>
+              <p class="web-meta">chat2api · 127.0.0.1:5005</p>
+              <div class="web-actions">
+                <button id="chatgptLogin" class="primary" type="button">登录 ChatGPT</button>
+                <button id="chatgptRefresh" class="ghost" type="button">刷新 Token</button>
+              </div>
+              <p class="help">登录后自动抓取 Token，并切换到 chat2api；不需要手动复制。</p>
+              <div class="web-accounts" id="chatgptAccounts"></div>
+              <div class="web-actions">
+                <button id="chatgptCheck" class="ghost" type="button">检测适配器</button>
+                <span class="web-check" id="chatgptCheckResult"></span>
+              </div>
+            </div>
+          </div>
+
+          <details class="web-details">
+            <summary>适配器启动步骤</summary>
+            <ol>
+              <li>
+                <b>DeepSeek：</b>运行
+                <a href="https://github.com/NIyueeE/ds-free-api" target="_blank" rel="noopener">ds-free-api</a>
+                （默认 22217），打开 <code>http://127.0.0.1:22217/admin</code> 添加账户；
+                插件登录后会自动抓取 device_id，复制到管理页即可。
+              </li>
+              <li>
+                <b>ChatGPT：</b>运行
+                <a href="https://github.com/lanqian528/chat2api" target="_blank" rel="noopener">chat2api</a>
+                （默认 5005），在设置页登录 ChatGPT；插件会自动抓取 Token 并填入 API Key。
+              </li>
+            </ol>
+            <p>完整步骤和安全说明见 <code>WEB-QA.md</code>。</p>
+          </details>
+
+          <p class="web-warning">
+            ⚠️ 这些是社区逆向项目，可能违反网页版服务条款、导致账号风控，且会随网页改版失效。
+            请只在本机运行、不要暴露端口，并使用专用账号。
+          </p>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>快捷键与状态</h2>
+            <span class="badge">Chrome</span>
+          </div>
+
+          <div class="info-row">
+            <span>剪贴板监听</span>
+            <span class="status" id="watchState">读取中…</span>
+          </div>
+
+          <div class="info-row">
+            <span>截图当前页面</span>
+            <span><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></span>
+          </div>
+
+          <div class="info-row">
+            <span>框选区域</span>
+            <span><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>X</kbd></span>
+          </div>
+
+          <p class="note">
+            快捷键可以在 Chrome 的扩展快捷键页面修改。系统截图（Windows <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>、
+            macOS <kbd>⌘</kbd>+<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd>、微信/QQ 截图等）复制到剪贴板后也会被自动检测。
+          </p>
+
+          <button id="shortcutsBtn" class="secondary" type="button">打开 Chrome 快捷键设置</button>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>隐私与数据</h2>
+            <span class="badge">本地</span>
+          </div>
+
+          <ul class="privacy-list">
+            <li>截图仅保存在当前面板内存中，不会写入磁盘或上传到 SnapAsk 服务器。</li>
+            <li>截图与问题会直接发送到你配置的 API 服务商。</li>
+            <li>API Key 保存在本机 <code>chrome.storage.local</code> 中，不会同步到云端。</li>
+            <li>插件只读取剪贴板中的图片，不读取文字内容。</li>
+          </ul>
+
+          <div class="danger-row">
+            <button id="clearBtn" class="ghost" type="button">清除运行数据</button>
+            <button id="resetBtn" class="danger" type="button">恢复默认设置</button>
+          </div>
+        </section>
+      </main>
+
+      <footer class="foot">
+        SnapAsk v1.0.0 · 支持 OpenAI 兼容接口 / Anthropic / Gemini / OpenRouter / 本地模型
+      </footer>
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+</html>
