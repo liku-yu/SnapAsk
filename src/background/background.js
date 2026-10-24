@@ -30,8 +30,8 @@ const DEFAULTS = {
   minImageSize: 64
 };
 
-const OFFSCREEN_URL = 'offscreen.html';
-const CONTENT_FILES = ['ui.js', 'content.js'];
+const OFFSCREEN_URL = 'src/offscreen/offscreen.html';
+const CONTENT_FILES = ['src/shared/ui.js', 'src/content/content.js'];
 const MAX_IMAGE_EDGE = 1800;
 
 /* ------------------------------------------------------------------ */
@@ -386,7 +386,7 @@ async function openViewer(image, source, opts = {}) {
       question: opts.question || ''
     }
   });
-  await chrome.tabs.create({ url: chrome.runtime.getURL('viewer.html') });
+  await chrome.tabs.create({ url: chrome.runtime.getURL('src/viewer/viewer.html') });
 }
 
 /* ------------------------------------------------------------------ */

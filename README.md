@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="icons/icon128.png" width="88" alt="SnapAsk" />
+  <img src="assets/icons/icon128.png" width="88" alt="SnapAsk" />
   <h1>SnapAsk 截图问答</h1>
   <p><b>截图即问，AI 自动弹出解答。</b></p>
   <p>Chrome / Edge 109+ · Manifest V3 · 无中转服务器</p>
@@ -122,7 +122,21 @@ npm run icons                  # 生成图标
 
 仓库元数据（description/topics）：`GITHUB_TOKEN=... ./tools/set-repo-metadata.sh`。
 
-目录：`background.js`（截图/API/路由）、`offscreen.js`（剪贴板）、`content.js` + `ui.js`（页面面板）、`web-login.js`（网页账户登录）、`popup/options/viewer`（界面）。
+```text
+manifest.json
+src/
+  background/background.js     # 截图 / API / 消息路由
+  content/content.js           # 页面面板、框选
+  content/web-login.js         # ChatGPT / DeepSeek 登录助手
+  shared/ui.js                 # 面板 UI（内容脚本 + viewer 复用）
+  offscreen/                   # 剪贴板监听
+  popup/                       # 工具栏弹窗
+  options/                     # 设置页
+  viewer/                      # 受限页面独立窗口
+assets/icons/                  # 扩展图标
+test/                          # mock API / CDP 辅助
+tools/                         # 图标生成 / 仓库元数据
+```
 
 ## 调研
 

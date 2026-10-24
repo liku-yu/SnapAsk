@@ -6,7 +6,7 @@ import os
 import struct
 import zlib
 
-OUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "icons")
+OUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "icons")
 
 ACCENT_A = (79, 70, 229)     # #4f46e5
 ACCENT_B = (139, 92, 246)    # #8b5cf6

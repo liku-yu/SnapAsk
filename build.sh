@@ -15,35 +15,22 @@ import sys
 import zipfile
 
 out = sys.argv[1]
-files = [
-    "manifest.json",
-    "background.js",
-    "offscreen.html",
-    "offscreen.js",
-    "ui.js",
-    "content.js",
-    "web-login.js",
-    "popup.html",
-    "popup.css",
-    "popup.js",
-    "options.html",
-    "options.css",
-    "options.js",
-    "viewer.html",
-    "viewer.css",
-    "viewer.js",
-    "WEB-QA.md",
-    "PRIVACY.md",
-    "LICENSE",
-]
-for name in sorted(os.listdir("icons")):
-    if name.endswith(".png"):
-        files.append(os.path.join("icons", name))
+files = ["manifest.json", "WEB-QA.md", "PRIVACY.md", "LICENSE"]
+
+for root in ("src", "assets"):
+    for dirpath, dirnames, names in os.walk(root):
+        dirnames[:] = sorted(d for d in dirnames if d not in {".DS_Store", "__pycache__"})
+        for name in sorted(names):
+            if name == ".DS_Store" or name.endswith(".pyc"):
+                continue
+            files.append(os.path.join(dirpath, name))
+
+missing = [path for path in files if not os.path.isfile(path)]
+if missing:
+    raise SystemExit("missing file(s): " + ", ".join(missing))
 
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zf:
     for path in files:
-        if not os.path.isfile(path):
-            raise SystemExit("missing file: " + path)
         zf.write(path, path)
 
 print("built", out)
