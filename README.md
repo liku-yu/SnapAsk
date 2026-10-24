@@ -120,6 +120,8 @@ npm run icons                  # 生成图标
 
 测试脚本：`test/mock-api.js`（本地 mock）、`test/cdp.mjs`（CDP 调试辅助）。
 
+仓库元数据（description/topics）：`GITHUB_TOKEN=... ./tools/set-repo-metadata.sh`。
+
 目录：`background.js`（截图/API/路由）、`offscreen.js`（剪贴板）、`content.js` + `ui.js`（页面面板）、`web-login.js`（网页账户登录）、`popup/options/viewer`（界面）。
 
 ## 调研
