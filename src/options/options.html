@@ -238,6 +238,23 @@
           </p>
         </section>
 
+        <section class="card card-wide" id="historyCard">
+          <div class="card-head">
+            <h2>历史会话</h2>
+            <span class="badge" id="historyCount">0</span>
+          </div>
+          <p class="note">
+            自动保存最近的文本对话（不含截图），保存在本机 <code>chrome.storage.local</code>。
+            导出会把 JSON 文件下载到浏览器默认下载目录（通常是 <code>Downloads</code>）。
+          </p>
+          <div class="history-actions">
+            <button id="historyExport" class="secondary" type="button">导出全部 JSON</button>
+            <button id="historyClear" class="danger" type="button">清空历史</button>
+            <span class="history-status" id="historyStatus"></span>
+          </div>
+          <div class="history-list" id="historyList"></div>
+        </section>
+
         <section class="card">
           <div class="card-head">
             <h2>快捷键与状态</h2>
@@ -288,7 +305,7 @@
       </main>
 
       <footer class="foot">
-        SnapAsk v1.0.2 · GPT / DeepSeek / GLM / Claude / Gemini / Ollama / 网页版
+        SnapAsk v1.1.0 · GPT / DeepSeek / GLM / Claude / Gemini / Ollama / 网页版
       </footer>
     </div>
 

@@ -1,6 +1,6 @@
 {
   "name": "snapask",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "private": true,
   "description": "截图即问：浏览器截图自动弹出 AI 解答。支持 GPT / DeepSeek / GLM / Claude / Gemini / Ollama 与 DeepSeek/ChatGPT 网页版。",
   "repository": {

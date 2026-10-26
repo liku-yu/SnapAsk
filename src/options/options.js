@@ -113,6 +113,7 @@
   let webAccounts = { chatgpt: [], chatgptActiveId: '' };
   let webLoginPending = {};
   let deepseekLogin = null;
+  let conversations = [];
 
   function clamp(value, min, max, fallback) {
     const n = Number(value);
@@ -508,6 +509,155 @@
     }
   }
 
+  function formatHistoryTime(value) {
+    const time = new Date(value || 0).getTime();
+    if (!Number.isFinite(time) || time <= 0) return '未知时间';
+    return new Date(time).toLocaleString('zh-CN', { hour12: false });
+  }
+
+  function setHistoryStatus(text, kind) {
+    const el = $('historyStatus');
+    if (!el) return;
+    el.textContent = text || '';
+    el.className = 'history-status' + (kind ? ' ' + kind : '');
+  }
+
+  function renderHistory() {
+    const list = Array.isArray(conversations) ? conversations : [];
+    const count = $('historyCount');
+    if (count) count.textContent = String(list.length);
+    const el = $('historyList');
+    if (!el) return;
+    el.textContent = '';
+
+    if (!list.length) {
+      const empty = document.createElement('div');
+      empty.className = 'history-empty';
+      empty.textContent = '还没有历史会话。截图并提问后会自动保存。';
+      el.append(empty);
+      return;
+    }
+
+    for (const session of list) {
+      const messages = Array.isArray(session.messages) ? session.messages : [];
+      const item = document.createElement('div');
+      item.className = 'history-item';
+
+      const head = document.createElement('div');
+      head.className = 'history-head';
+
+      const title = document.createElement('div');
+      title.className = 'history-title';
+      title.textContent = session.title || '截图问答';
+
+      const meta = document.createElement('span');
+      meta.className = 'history-meta';
+      meta.textContent = `${formatHistoryTime(session.updatedAt)} · ${
+        session.model || '未知模型'
+      } · ${messages.length} 条`;
+
+      const actions = document.createElement('div');
+      actions.className = 'history-item-actions';
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.textContent = '查看';
+      const copy = document.createElement('button');
+      copy.type = 'button';
+      copy.textContent = '复制';
+      const del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'danger';
+      del.textContent = '删除';
+      actions.append(toggle, copy, del);
+      head.append(title, meta, actions);
+
+      const body = document.createElement('div');
+      body.className = 'history-body';
+      body.hidden = true;
+      for (const message of messages) {
+        const row = document.createElement('div');
+        row.className = 'history-msg ' + (message.role === 'user' ? 'user' : 'assistant');
+        const role = document.createElement('span');
+        role.className = 'history-role';
+        role.textContent = message.role === 'user' ? '你' : 'AI';
+        const text = document.createElement('div');
+        text.className = 'history-text';
+        text.textContent = message.content || '';
+        row.append(role, text);
+        body.append(row);
+      }
+
+      toggle.addEventListener('click', () => {
+        body.hidden = !body.hidden;
+        toggle.textContent = body.hidden ? '查看' : '收起';
+      });
+      copy.addEventListener('click', () => copySession(session));
+      del.addEventListener('click', () => deleteSession(session.id));
+
+      item.append(head, body);
+      el.append(item);
+    }
+  }
+
+  async function copySession(session) {
+    const text = (Array.isArray(session.messages) ? session.messages : [])
+      .map((message) => (message.role === 'user' ? '你：' : 'AI：') + (message.content || ''))
+      .join('\n\n');
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    setHistoryStatus('已复制当前会话', 'ok');
+  }
+
+  async function deleteSession(id) {
+    if (!window.confirm('删除这条历史会话？')) return;
+    conversations = (conversations || []).filter((session) => session.id !== id);
+    await chrome.storage.local.set({ conversations });
+    renderHistory();
+    setHistoryStatus('已删除', 'ok');
+  }
+
+  function exportHistory() {
+    const list = Array.isArray(conversations) ? conversations : [];
+    if (!list.length) {
+      setHistoryStatus('没有可导出的历史', 'bad');
+      return;
+    }
+    const data = {
+      app: 'SnapAsk',
+      version: chrome.runtime.getManifest().version,
+      exportedAt: new Date().toISOString(),
+      conversations: list
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: 'application/json'
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'snapask-history-' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setHistoryStatus('已开始下载；JSON 在浏览器默认下载目录（通常是 Downloads）', 'ok');
+  }
+
+  async function clearHistory() {
+    if (!window.confirm('确定清空所有历史会话吗？')) return;
+    conversations = [];
+    await chrome.storage.local.set({ conversations: [] });
+    renderHistory();
+    setHistoryStatus('历史已清空', 'ok');
+  }
+
   async function load() {
     // 设置页是受信任的扩展页面，直接读取完整设置（包括 API Key）。
     // 不要让 background 把 Key 通过消息返回，避免 Key 出现在更多上下文里。
@@ -517,7 +667,8 @@
         'settingsMigration',
         'watchStatus',
         'webAccounts',
-        'snapaskWebLogin'
+        'snapaskWebLogin',
+        'conversations'
       ]);
       state = { ...DEFAULTS, ...(stored.settings || {}) };
 
@@ -530,6 +681,7 @@
       watch = stored.watchStatus || null;
       webAccounts = stored.webAccounts || { chatgpt: [], chatgptActiveId: '' };
       webLoginPending = stored.snapaskWebLogin || {};
+      conversations = Array.isArray(stored.conversations) ? stored.conversations : [];
     } catch (err) {
       console.warn('[SnapAsk] load:', err);
       state = { ...DEFAULTS };
@@ -542,6 +694,7 @@
       deepseekLogin = null;
     }
     fill(state);
+    renderHistory();
     setSaveState('已加载');
   }
 
@@ -574,6 +727,8 @@
   $('deepseekCopy').addEventListener('click', copyDeepseekDeviceId);
   $('deepseekCheck').addEventListener('click', () => checkAdapter('deepseek'));
   $('chatgptCheck').addEventListener('click', () => checkAdapter('chatgpt'));
+  $('historyExport').addEventListener('click', exportHistory);
+  $('historyClear').addEventListener('click', clearHistory);
 
   $('toggleKey').addEventListener('click', () => {
     const input = $('apiKey');
@@ -670,6 +825,13 @@
     if (changes.snapaskWebLogin) {
       webLoginPending = changes.snapaskWebLogin.newValue || {};
       renderWebPanels();
+    }
+
+    if (changes.conversations) {
+      conversations = Array.isArray(changes.conversations.newValue)
+        ? changes.conversations.newValue
+        : [];
+      renderHistory();
     }
 
     if (changes.watchStatus) {

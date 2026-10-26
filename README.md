@@ -17,6 +17,7 @@
 - **自动检测截图**：剪贴板出现新图片时自动弹出面板并提问。
 - **三种截图入口**：系统截图进剪贴板、`Alt+Shift+S` 截当前页、`Alt+Shift+X` 框选。
 - **流式回答**：Markdown、追问、复制、停止、重试、最小化。
+- **历史会话**：自动保存文本对话（不含截图），可查看、复制、导出 JSON、清空。
 - **多种后端**：GPT / DeepSeek / GLM / Claude / Gemini / 本地 Ollama，以及 DeepSeek / ChatGPT 网页版。
 - **网页账户可视化登录**：ChatGPT 自动抓 Token；DeepSeek 自动抓 device_id。
 - **隐私友好**：截图不落盘、Key 不下发内容脚本、面板使用 closed Shadow DOM、错误自动脱敏。
@@ -31,7 +32,7 @@
 
 ### 方式一：下载 Release（推荐）
 
-1. 下载 [snapask-extension-v1.0.2.zip](https://github.com/liku-yu/SnapAsk/releases/download/v1.0.2/snapask-extension-v1.0.2.zip)。
+1. 下载 [snapask-extension-v1.1.0.zip](https://github.com/liku-yu/SnapAsk/releases/download/v1.1.0/snapask-extension-v1.1.0.zip)。
 2. 解压到一个**固定目录**，例如 `~/Applications/SnapAsk` 或 `C:\SnapAsk`。
 3. 打开 `chrome://extensions/` 或 `edge://extensions/`，开启开发者模式。
 4. 点击 **加载已解压的扩展程序**，选择**直接包含 `manifest.json` 的文件夹**。
@@ -53,6 +54,13 @@
 - **浏览器内**：`Alt+Shift+S` 截当前页，`Alt+Shift+X` 框选。
 - **右键菜单**：网页空白处右键 → SnapAsk。
 - 快捷键可在 `chrome://extensions/shortcuts`（Edge 为 `edge://extensions/shortcuts`）修改。
+
+## 历史会话
+
+- 自动保存最近 **20 个会话**的文本记录，每个会话最多 40 条消息；**不保存截图**。
+- 设置页 → **历史会话**：查看 / 复制 / 删除 / 导出全部 JSON / 清空。
+- 本地存储：`chrome.storage.local`（浏览器扩展存储，不是可直接打开的普通文件）。
+- 导出：JSON 会下载到浏览器默认下载目录，通常是 `Downloads/snapask-history-*.json`；如果浏览器弹出“另存为”，由你选择位置。
 
 ## 网页问答（无需官方 API Key）
 

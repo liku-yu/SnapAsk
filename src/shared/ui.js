@@ -563,6 +563,10 @@
       source,
       settings: { ...DEFAULTS },
       history: [],
+      sessionId:
+        globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function'
+          ? globalThis.crypto.randomUUID()
+          : 's-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10),
       asking: false,
       port: null,
       destroyed: false,
@@ -895,6 +899,32 @@
       }, 1600);
     }
 
+    function saveSession() {
+      const messages = state.history
+        .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && m.content)
+        .slice(-40);
+      if (!messages.length) return;
+      const firstUser = messages.find((m) => m.role === 'user');
+      const title = (firstUser && firstUser.content ? firstUser.content : '截图问答').slice(0, 120);
+      try {
+        chrome.runtime
+          .sendMessage({
+            type: 'SNAPASK_SAVE_SESSION',
+            session: {
+              id: state.sessionId,
+              title,
+              source: state.source,
+              model: state.settings.model || '',
+              provider: state.settings.provider || '',
+              messages
+            }
+          })
+          .catch(() => {});
+      } catch {
+        /* ignore */
+      }
+    }
+
     function ask(text, opts = {}) {
       const questionText = String(text || '').trim();
       if (!questionText) return;
@@ -909,6 +939,7 @@
       clearSetupCard();
       state.lastQuestion = questionText;
       state.history.push({ role: 'user', content: questionText });
+      saveSession();
 
       const { turn, ai } = addTurn(questionText, !!opts.auto);
       const bodyEl = ai.querySelector('.sa-md');
@@ -956,6 +987,7 @@
           finalizeRender(bodyEl, display);
           attachCopyButton(ai, display);
           state.history.push({ role: 'assistant', content: acc });
+          saveSession();
           finishAsk();
           maybeAutoCollapse();
         } else if (msg.type === 'error') {
@@ -973,6 +1005,7 @@
             state.history.pop();
             turn.remove();
           }
+          saveSession();
           finishAsk();
         }
       });
@@ -987,6 +1020,7 @@
           state.history.pop();
           showError(turn, '连接中断，请重试。', questionText);
         }
+        saveSession();
         finishAsk();
       });
 

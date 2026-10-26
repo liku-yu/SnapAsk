@@ -33,6 +33,9 @@ const DEFAULTS = {
 const OFFSCREEN_URL = 'src/offscreen/offscreen.html';
 const CONTENT_FILES = ['src/shared/ui.js', 'src/content/content.js'];
 const MAX_IMAGE_EDGE = 1800;
+const MAX_HISTORY_SESSIONS = 20;
+const MAX_HISTORY_MESSAGES = 40;
+const MAX_HISTORY_CHARS = 4000;
 
 /* ------------------------------------------------------------------ */
 /* 设置                                                                */
@@ -566,6 +569,59 @@ async function captureDeepseekFromTab(tabId) {
   }
   if (deviceId) await clearWebLoginPending('deepseek');
   return { ok: true, deviceId, email };
+}
+
+async function saveConversationSession(session) {
+  if (!session || !session.id || !Array.isArray(session.messages)) return { ok: false };
+
+  const { conversations } = await chrome.storage.local.get('conversations');
+  const list = Array.isArray(conversations) ? conversations.slice() : [];
+  const now = Date.now();
+  const id = String(session.id).slice(0, 100);
+  const index = list.findIndex((item) => item && item.id === id);
+  const existing = index >= 0 ? list[index] : null;
+
+  const messages = session.messages
+    .filter((message) => message && (message.role === 'user' || message.role === 'assistant'))
+    .slice(-MAX_HISTORY_MESSAGES)
+    .map((message) => ({
+      role: message.role,
+      content: String(message.content || '').slice(0, MAX_HISTORY_CHARS)
+    }))
+    .filter((message) => message.content);
+
+  if (!messages.length) return { ok: false };
+
+  const firstUser = messages.find((message) => message.role === 'user');
+  const entry = {
+    id,
+    title: String(session.title || (firstUser && firstUser.content) || '截图问答').slice(0, 120),
+    source: String(session.source || '').slice(0, 40),
+    model: String(session.model || '').slice(0, 120),
+    provider: String(session.provider || '').slice(0, 40),
+    createdAt: existing && existing.createdAt ? existing.createdAt : now,
+    updatedAt: now,
+    messages
+  };
+
+  if (index >= 0) list[index] = entry;
+  else list.unshift(entry);
+
+  list.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  const trimmed = list.slice(0, MAX_HISTORY_SESSIONS);
+
+  try {
+    await chrome.storage.local.set({ conversations: trimmed });
+  } catch (err) {
+    // 本地存储配额不足时保留最近 10 条。
+    console.warn('[SnapAsk] history quota:', err && err.message ? err.message : err);
+    try {
+      await chrome.storage.local.set({ conversations: trimmed.slice(0, 10) });
+    } catch (err2) {
+      console.warn('[SnapAsk] history quota retry:', err2 && err2.message ? err2.message : err2);
+    }
+  }
+  return { ok: true };
 }
 
 async function checkAdapter(overrides) {
@@ -1183,6 +1239,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         } catch (err) {
           sendResponse({ ok: false, error: err.message || String(err) });
         }
+        break;
+      }
+
+      case 'SNAPASK_SAVE_SESSION': {
+        const result = await saveConversationSession(msg.session);
+        sendResponse(result);
         break;
       }
 
