@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SnapAsk 截图问答",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "截图即问：自动检测屏幕截图，AI 立刻弹出解答。支持 GPT、DeepSeek、GLM、Claude、Gemini、Ollama 与网页版。",
   "minimum_chrome_version": "109",
   "permissions": [

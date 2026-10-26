@@ -21,7 +21,7 @@ const DEFAULTS = {
   apiKey: '',
   model: 'gpt-4o-mini',
   temperature: 0.2,
-  maxTokens: 1500,
+  maxTokens: 4096,
   systemPrompt:
     '你是 SnapAsk 截图助手。你会收到用户截取的屏幕图片和问题。请直接、准确地回答，' +
     '优先指出截图中的关键信息、错误原因和可执行的下一步。使用简体中文回答（除非用户要求其他语言）。' +
@@ -40,8 +40,22 @@ const MAX_IMAGE_EDGE = 1800;
 
 async function getSettings() {
   try {
-    const { settings } = await chrome.storage.local.get('settings');
-    return { ...DEFAULTS, ...(settings || {}) };
+    const { settings, settingsMigration } = await chrome.storage.local.get([
+      'settings',
+      'settingsMigration'
+    ]);
+    const merged = { ...DEFAULTS, ...(settings || {}) };
+
+    // v1.0.2: 旧默认 maxTokens=1500 容易把回答截断，一次性提升到 4096。
+    if (!settingsMigration) {
+      if (settings && Number(settings.maxTokens) === 1500) {
+        merged.maxTokens = DEFAULTS.maxTokens;
+        await chrome.storage.local.set({ settings: merged, settingsMigration: 2 });
+      } else {
+        await chrome.storage.local.set({ settingsMigration: 2 });
+      }
+    }
+    return merged;
   } catch {
     return { ...DEFAULTS };
   }
@@ -661,7 +675,7 @@ function buildRequestBody(settings, image, messages) {
   if (settings.provider === 'anthropic') {
     return {
       model: settings.model,
-      max_tokens: Math.max(64, Number(settings.maxTokens) || 1500),
+      max_tokens: Math.max(64, Number(settings.maxTokens) || 4096),
       temperature: Number(settings.temperature) || 0,
       stream: true,
       ...(sys ? { system: sys } : {}),
@@ -673,7 +687,7 @@ function buildRequestBody(settings, image, messages) {
     model: settings.model,
     stream: true,
     temperature: Number(settings.temperature) || 0,
-    max_tokens: Math.max(64, Number(settings.maxTokens) || 1500),
+    max_tokens: Math.max(64, Number(settings.maxTokens) || 4096),
     messages: [
       ...(sys ? [{ role: 'system', content: sys }] : []),
       ...withImage
@@ -868,18 +882,46 @@ async function streamChat({ settings, image, messages, signal }, onDelta) {
       } catch {
         if (text.trim()) {
           onDelta(text.trim());
-          return;
+          return { finishReason: '' };
         }
         throw apiError('BAD_RESPONSE', 'API 返回了无法识别的响应。');
       }
       const full = extractFullText(json, settings.provider);
       if (full) onDelta(full);
-      return;
+      return {
+        finishReason: String(
+          (json && json.choices && json.choices[0] && json.choices[0].finish_reason) ||
+            (json && json.stop_reason) ||
+            ''
+        )
+      };
     }
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    let finishReason = '';
+
+    const handleData = (data) => {
+      if (!data || data === '[DONE]') return;
+      let json;
+      try {
+        json = JSON.parse(data);
+      } catch {
+        return;
+      }
+      const delta = extractDelta(json, settings.provider);
+      if (delta) onDelta(delta);
+
+      if (settings.provider === 'anthropic') {
+        if (json.type === 'message_delta' && json.delta && json.delta.stop_reason) {
+          finishReason = String(json.delta.stop_reason);
+        }
+      } else {
+        const reason = json.choices && json.choices[0] && json.choices[0].finish_reason;
+        if (reason) finishReason = String(reason);
+      }
+    };
 
     while (true) {
       const { done, value } = await reader.read();
@@ -894,18 +936,15 @@ async function streamChat({ settings, image, messages, signal }, onDelta) {
         if (line.endsWith('\r')) line = line.slice(0, -1);
         if (!line || line.startsWith(':')) continue;
         if (!line.startsWith('data:')) continue;
-        const data = line.slice(5).trim();
-        if (!data || data === '[DONE]') continue;
-        let json;
-        try {
-          json = JSON.parse(data);
-        } catch {
-          continue;
-        }
-        const delta = extractDelta(json, settings.provider);
-        if (delta) onDelta(delta);
+        handleData(line.slice(5).trim());
       }
     }
+
+    // 某些服务最后一条 data: 没有换行，补一次 flush。
+    const tail = buffer.trim();
+    if (tail.startsWith('data:')) handleData(tail.slice(5).trim());
+
+    return { finishReason };
   } catch (err) {
     if (timedOut) throw apiError('TIMEOUT', 'API 响应超时。请检查网络或稍后重试。');
     if (err.name === 'AbortError' && signal && signal.aborted) throw err;
@@ -987,7 +1026,7 @@ chrome.runtime.onConnect.addListener((port) => {
       try {
         settings = await getSettings();
         let acc = '';
-        await streamChat(
+        const result = await streamChat(
           {
             settings,
             image: msg.image || null,
@@ -999,7 +1038,11 @@ chrome.runtime.onConnect.addListener((port) => {
             safePost({ type: 'delta', text: delta });
           }
         );
-        safePost({ type: 'done', text: acc });
+        safePost({
+          type: 'done',
+          text: acc,
+          finishReason: (result && result.finishReason) || ''
+        });
       } catch (err) {
         if (err && err.name === 'AbortError') {
           safePost({ type: 'aborted' });

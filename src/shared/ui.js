@@ -37,7 +37,7 @@
     apiKey: '',
     model: 'gpt-4o-mini',
     temperature: 0.2,
-    maxTokens: 1500,
+    maxTokens: 4096,
     systemPrompt: ''
   };
 
@@ -100,7 +100,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-height: min(78vh, 720px);
+    max-height: min(86vh, 820px);
     background: var(--bg);
     border: 1px solid var(--line);
     border-radius: 18px;
@@ -813,7 +813,8 @@
         renderRaf = 0;
       }
       el.innerHTML = renderMarkdown(text);
-      scrollChat(false);
+      // 完成后强制滚到底，避免用户以为回答被截断。
+      scrollChat(true);
     }
 
     function attachCopyButton(aiEl, text) {
@@ -946,8 +947,14 @@
         } else if (msg.type === 'done') {
           if (!cleanup()) return;
           acc = msg.text || acc;
-          finalizeRender(bodyEl, acc);
-          attachCopyButton(ai, acc);
+          const reason = String(msg.finishReason || '');
+          const truncated = reason === 'length' || reason === 'max_tokens';
+          const display = truncated
+            ? acc +
+              '\n\n> ⚠️ 回答达到最大输出长度，可在设置中提高“最大输出 tokens”，或发送“继续”。'
+            : acc;
+          finalizeRender(bodyEl, display);
+          attachCopyButton(ai, display);
           state.history.push({ role: 'assistant', content: acc });
           finishAsk();
           maybeAutoCollapse();

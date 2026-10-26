@@ -15,7 +15,7 @@
     apiKey: '',
     model: 'gpt-4o-mini',
     temperature: 0.2,
-    maxTokens: 1500,
+    maxTokens: 4096,
     systemPrompt:
       '你是 SnapAsk 截图助手。你会收到用户截取的屏幕图片和问题。请直接、准确地回答，' +
       '优先指出截图中的关键信息、错误原因和可执行的下一步。使用简体中文回答（除非用户要求其他语言）。' +
@@ -146,7 +146,7 @@
     $('apiKey').value = settings.apiKey || '';
     $('model').value = settings.model || '';
     $('temperature').value = typeof settings.temperature === 'number' ? settings.temperature : 0.2;
-    $('maxTokens').value = settings.maxTokens || 1500;
+    $('maxTokens').value = settings.maxTokens || 4096;
     $('systemPrompt').value = settings.systemPrompt || '';
     presetSelect.value = detectPreset(settings);
     updateWebStatus();
@@ -168,7 +168,7 @@
       apiKey: $('apiKey').value.trim(),
       model: $('model').value.trim(),
       temperature: clamp($('temperature').value, 0, 2, 0.2),
-      maxTokens: Math.round(clamp($('maxTokens').value, 64, 32000, 1500)),
+      maxTokens: Math.round(clamp($('maxTokens').value, 64, 32000, 4096)),
       systemPrompt: $('systemPrompt').value.trim()
     };
   }
@@ -514,11 +514,19 @@
     try {
       const stored = await chrome.storage.local.get([
         'settings',
+        'settingsMigration',
         'watchStatus',
         'webAccounts',
         'snapaskWebLogin'
       ]);
       state = { ...DEFAULTS, ...(stored.settings || {}) };
+
+      // v1.0.2: 旧默认 1500 容易截断回答，一次性提升到 4096。
+      if (!stored.settingsMigration && Number(state.maxTokens) === 1500) {
+        state.maxTokens = DEFAULTS.maxTokens;
+        await chrome.storage.local.set({ settings: state, settingsMigration: 2 });
+      }
+
       watch = stored.watchStatus || null;
       webAccounts = stored.webAccounts || { chatgpt: [], chatgptActiveId: '' };
       webLoginPending = stored.snapaskWebLogin || {};

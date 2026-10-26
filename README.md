@@ -31,7 +31,7 @@
 
 ### 方式一：下载 Release（推荐）
 
-1. 下载 [snapask-extension-v1.0.1.zip](https://github.com/liku-yu/SnapAsk/releases/download/v1.0.1/snapask-extension-v1.0.1.zip)。
+1. 下载 [snapask-extension-v1.0.2.zip](https://github.com/liku-yu/SnapAsk/releases/download/v1.0.2/snapask-extension-v1.0.2.zip)。
 2. 解压到一个**固定目录**，例如 `~/Applications/SnapAsk` 或 `C:\SnapAsk`。
 3. 打开 `chrome://extensions/` 或 `edge://extensions/`，开启开发者模式。
 4. 点击 **加载已解压的扩展程序**，选择**直接包含 `manifest.json` 的文件夹**。
@@ -119,6 +119,7 @@ Base URL 填服务商的 OpenAI 兼容地址，插件会自动补 `/chat/complet
 4. `chrome://`、扩展商店等页面无法注入，会改用独立窗口。
 5. 网页适配器是逆向项目，可能失效或触发账号风控；DeepSeek 网页端独立 vision 模式已下线，识图效果需实测。
 6. 追问会重复发送历史与截图，长对话 token 消耗会增加。
+7. 默认最大输出 4096 tokens；如果回答被截断，可在设置页调高“最大输出 tokens”，或发送“继续”。
 
 ## 开发
 
