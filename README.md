@@ -8,9 +8,20 @@
     <img alt="release" src="https://img.shields.io/github/v/release/liku-yu/SnapAsk" />
     <img alt="license" src="https://img.shields.io/github/license/liku-yu/SnapAsk" />
   </p>
+  <p>
+    <a href="https://github.com/liku-yu/SnapAsk">GitHub</a>
+    ·
+    <a href="https://cnb.cool/liku-yu/SnapAsk">CNB</a>
+  </p>
 </div>
 
 ---
+
+## 简介
+
+SnapAsk 是一个 Chrome / Edge 截图问答扩展：当你在浏览器或系统里截图并复制到剪贴板时，它会自动弹出面板，把截图发给你配置的视觉模型，并流式给出解答。
+
+适合排错、读文档/表格、看图表、翻译、学习题等场景。支持官方 API（GPT / DeepSeek / GLM / Claude / Gemini）、本地 Ollama，以及通过本机适配器使用 DeepSeek / ChatGPT 网页版。截图默认不落盘，历史会话只保存文本。
 
 ## 功能
 
@@ -141,6 +152,8 @@ npm run icons                  # 生成图标
 测试脚本：`test/mock-api.js`（本地 mock）、`test/cdp.mjs`（CDP 调试辅助）。
 
 仓库元数据（description/topics）：`GITHUB_TOKEN=... ./tools/set-repo-metadata.sh`。
+
+CNB 简介/topics：`CNB_TOKEN=... ./tools/set-cnb-metadata.sh`（token 需要 `repo-manage:rw`）。
 
 ```text
 manifest.json
